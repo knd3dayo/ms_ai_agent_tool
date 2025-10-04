@@ -3,7 +3,7 @@ requires = ["setuptools>=62.6", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ms_ai_agent_sample"
+name = "ms_ai_agent_tool"
 version = "0.1.0"
 authors = [
     { name = "knd3dayo", email = "knd3dayo@gmail.com" }

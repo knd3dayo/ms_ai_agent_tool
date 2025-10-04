@@ -1268,7 +1268,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ms-ai-agent-sample"
+name = "ms-ai-agent-tool"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

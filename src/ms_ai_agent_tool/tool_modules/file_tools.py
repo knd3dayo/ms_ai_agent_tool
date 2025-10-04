@@ -3,7 +3,7 @@ import re
 from typing import List, Optional, Annotated, Callable
 from pydantic import BaseModel, Field
 from datetime import datetime
-import ms_ai_agent_sample.log_modules.log_settings as log_settings
+import ms_ai_agent_tool.log_modules.log_settings as log_settings
 logger = log_settings.getLogger(__name__)
 
 class FileModel(BaseModel):

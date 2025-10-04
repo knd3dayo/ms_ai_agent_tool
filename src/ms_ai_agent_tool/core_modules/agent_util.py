@@ -4,9 +4,9 @@ from typing import Any, Union, ClassVar, Optional, Any, List
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, model_validator
 
-from ms_ai_agent_sample.tool_modules.file_tools import get_file_tools
+from ms_ai_agent_tool.tool_modules.file_tools import get_file_tools
 
-import ms_ai_agent_sample.log_modules.log_settings as log_settings
+import ms_ai_agent_tool.log_modules.log_settings as log_settings
 logger = log_settings.getLogger(__name__)
 
 
@@ -251,7 +251,7 @@ async def async_main():
         ) as agent):
         result = await agent.run(
         """ 
-        あなたの役割を教えてください。
+        カレントディレクトリのファイル一覧を表示してください。
         """
         )
         print(result)
