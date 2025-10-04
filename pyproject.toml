@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=62.6", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ms_ai_agent_sample"
+version = "0.1.0"
+authors = [
+    { name = "knd3dayo", email = "knd3dayo@gmail.com" }
+]
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["src"]
