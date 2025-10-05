@@ -4,7 +4,7 @@ from typing import Any, Union, ClassVar, Optional, Any, List
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, model_validator
 
-from ms_ai_agent_tool.tool_modules.file_tools import get_file_tools
+from agent_framework import MCPStdioTool, HostedMCPTool
 
 import ms_ai_agent_tool.log_modules.log_settings as log_settings
 logger = log_settings.getLogger(__name__)
@@ -104,7 +104,6 @@ class MSAIAgentMcpSetting(BaseModel):
 
     @staticmethod
     def create_mcp_tools_from_settings(mcp_settings_json_path: str) -> list[Any]:
-        from agent_framework import MCPStdioTool, HostedMCPTool
         if not mcp_settings_json_path or os.path.isfile(mcp_settings_json_path) is False:
             logger.info("MCP settings JSON path is not provided or invalid.")
             return []
@@ -156,6 +155,16 @@ class MSAIAgentUtil:
     def __init__(self, props: MSAIAgentProps):
         
         self.props = props
+
+    def create_default_mcp_server(self) -> MCPStdioTool:
+        tool = MCPStdioTool(
+            name="mcp_server",
+            command="uv",
+            args=["run", "-m", "ms_ai_agent_tool.mcp_modules.mcp_server"],
+            env=os.environ.copy(),
+            description="MCP server tools for file operations",
+        )
+        return tool
 
     def create_client(self) -> Union[OpenAIChatClient, AzureOpenAIResponsesClient]:
         
@@ -236,10 +245,10 @@ async def async_main():
     # Create an agent using OpenAI ChatCompletion
     agent_util = MSAIAgentUtil(MSAIAgentProps.create_from_env())
     client = agent_util.create_client()
-    default_tools = get_file_tools()
     mcp_tools = MSAIAgentMcpSetting.create_mcp_tools_from_settings(mcp_settings_json_path)
 
-    tools = default_tools + mcp_tools
+    tools = [agent_util.create_default_mcp_server()] + mcp_tools
+
     params = {}
     params["name"] = "HelpfulAssistant"
     params["instructions"] = agent_util.create_instractions(custom_instructions_path)
@@ -249,12 +258,17 @@ async def async_main():
     async with (client.create_agent(
             **params
         ) as agent):
-        result = await agent.run(
-        """ 
-        カレントディレクトリのファイル一覧を表示してください。
-        """
-        )
-        print(result)
+        # Create a thread for persistent conversation
+        thread = agent.get_new_thread()
+        while True:
+            try:
+                input_text = input("Enter your request: ")
+                result = await agent.run(input_text, thread=thread)
+                print(result)
+            except InterruptedError as e:
+                print("Interrupted. Exiting...")
+                break
+
 
 if __name__ == "__main__":
     import asyncio

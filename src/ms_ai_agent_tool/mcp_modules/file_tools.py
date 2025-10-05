@@ -42,50 +42,6 @@ def check_allow_outside_modification(file_path: str):
             raise ValueError(f"Outside file modification is not allowed. Attempted to modify {file_path}.")
             # return False
 
-def get_file_tools() -> List[Callable]:
-    return [
-        list_files_json,
-        grep_in_file_json,
-        read_file,
-        write_to_file,
-    ]
-
-def list_files_json(
-    directory_path: Annotated[str, "The path to the directory to list files from."] = ".", 
-    filter: Annotated[Optional[str], "A filter string to match against file names. An asterisk matches any string."] = None
-    ) -> str:
-    """
-    Lists files and directories in the specified directory path and returns the result as a JSON string.
-
-    Args:
-    directory_path (str): The path to the directory to list files from.
-    filter (Optional[str]): A filter string to match against file names. An asterisk matches any string.
-
-    Returns:
-    str: A JSON string representing a list of FileModel instances.
-    """
-    file_models = list_files(directory_path, filter)
-    return "[" + ",".join([file_model.model_dump_json() for file_model in file_models]) + "]"
-
-def grep_in_file_json(
-    file_path: Annotated[str, "The path to the file to search in."], 
-    search_string: Annotated[str, "The string to search for in the file."], 
-    case_sensitive: Annotated[bool, "Whether the search should be case sensitive."] = True
-) -> str:
-    """
-    Searches for a string in a file and returns matching lines with their metadata as a JSON string.
-
-    Args:
-    file_path (str): The path to the file to search in.
-    search_string (str): The string to search for in the file.
-    case_sensitive (bool): Whether the search should be case sensitive.
-
-    Returns:
-    str: A JSON string representing a list of FileLineModel instances.
-    """
-    matching_lines = grep_in_file(file_path, search_string, case_sensitive)
-    return "[" + ",".join([line.model_dump_json() for line in matching_lines]) + "]"
-
 def list_files(
     directory_path: Annotated[str, "The path to the directory to list files from."] = ".", 
     filter: Annotated[Optional[str], "A filter string to match against file names. An asterisk matches any string."] = None
@@ -148,9 +104,9 @@ def read_file(
     if end_line is not None:
         lines = lines[:end_line]  # Slice up to end_line (inclusive)
 
-    return ''.join(lines)
+    return '\n'.join(lines)
 
-def grep_in_file(
+def search_in_file(
     file_path: Annotated[str, "The path to the file to search in."], 
     search_string: Annotated[str, "The string to search for in the file."], 
     case_sensitive: Annotated[bool, "Whether the search should be case sensitive."] = True
@@ -187,7 +143,7 @@ def grep_in_file(
  
     return matching_lines
 
-def write_to_file(
+def write_file(
     file_path: Annotated[str, "The path to the file to write to."], 
     content: Annotated[str, "The content to write to the file."], 
     append: Annotated[bool, "Whether to append to the file (True) or overwrite it (False)."] = False
